@@ -18,8 +18,14 @@ get '/test' do
     end
 
     doc.at_css("div#content").css("div.normal").each do |div|
+        if div.at_css('.supporting')
+            title = div.at_css('.title').child.text.strip + " " + div.at_css('.supporting').text.strip
+        else
+            title = div.at_css('.title').child.text.strip
+        end
+
         show_info = {
-            :title => div.at_css('.title').child.text.strip,
+            :title => title,
             :date => div.at_css('.date').text.strip
         }
 

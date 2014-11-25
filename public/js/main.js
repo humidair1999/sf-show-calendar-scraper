@@ -12,7 +12,11 @@ $('#find-slims').on('click', function(evt) {
             month: selectedMonth
         }
     }).done(function(data) {
-        console.log(data);
+        $('#show-list').empty();
+
+        $.each(data, function(idx, element) {
+            $('#show-list').append('<li>' + element.title + ' @ ' + element.date + '</li>');
+        });
     }).fail(function() {
         console.log('fail');
     });
