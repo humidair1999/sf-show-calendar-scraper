@@ -24,7 +24,7 @@ get '/test' do
             title = div.at_css('.title').child.text.strip
         end
 
-        date = div.at_css('.date').text.strip[2..-3].split[2]
+        date = div.at_css('.date').text.strip[2..-3].split[2].to_i
 
         show_info = {
             :title => title,
