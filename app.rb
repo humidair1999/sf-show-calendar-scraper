@@ -17,16 +17,18 @@ get '/test' do
         config.strict.nonet
     end
 
-    doc.at_css("div#content").css("div.normal").each do |div|
+    doc.at_css("div#content").css("div.today", "div.normal").each do |div|
         if div.at_css('.supporting')
             title = div.at_css('.title').child.text.strip + " " + div.at_css('.supporting').text.strip
         else
             title = div.at_css('.title').child.text.strip
         end
 
+        date = div.at_css('.date').text.strip[2..-3].split[2]
+
         show_info = {
             :title => title,
-            :date => div.at_css('.date').text.strip
+            :date => date
         }
 
         shows << show_info
