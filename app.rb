@@ -158,3 +158,61 @@ get '/warfield' do
     content_type :json
     shows.to_json
 end
+
+get '/bottomofthehill' do
+    month = params[:month].capitalize
+    shows = []
+
+    p month
+
+    doc = Nokogiri::HTML(open("http://www.bottomofthehill.com/calendar.html", 'User-Agent' => 'firefox')) do |config|
+        config.strict.noent
+        config.strict.noerror
+        config.strict.nonet
+    end
+
+    doc.at_css('#listings').css("tr").each do |row|
+        if row.at_css('.date')
+            composed_date = ''
+
+            # we have to take extensive measures to fix BOTH's horrible CMS auto-formatting shit on dates
+            row.css('.date').each do |date_element|
+                date_element_text = date_element.text.strip
+
+                if date_element_text.start_with?(*('0'..'9')) or date_element_text.start_with?(*('A'..'Z'))
+                    date_element_text.insert(0, " ")
+                end
+
+                composed_date << date_element_text
+            end
+
+            composed_date = composed_date.tr("\n", " ").tr("\u00A0", " ").strip.split.join(' ')
+
+            if composed_date.split[1] == month
+                title = ''
+                date = composed_date.split[2].to_i
+
+                row.css('.band').each do |band_element|
+                    if band_element.child
+                        title << band_element.child.text.strip + ' '
+                    else
+                        title << band_element.text.strip + ' '
+                    end
+                end
+
+                show_info = {
+                    :title => title,
+                    :date => date
+                }
+
+                shows << show_info
+
+                p '---------------------------------------------------------'
+                p show_info
+            end
+        end
+    end
+
+    content_type :json
+    shows.to_json
+end

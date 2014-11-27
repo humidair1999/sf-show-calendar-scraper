@@ -101,3 +101,29 @@ $('#find-warfield').on('click', function(evt) {
         console.log('fail');
     });
 });
+
+$('#find-bottomofthehill').on('click', function(evt) {
+    var selectedMonth = $('#select-month').val();
+
+    console.log(selectedMonth);
+
+    evt.preventDefault();
+
+    $.ajax({
+        url: '/bottomofthehill',
+        type: 'get',
+        data: {
+            month: selectedMonth
+        }
+    }).done(function(data) {
+        $('#show-list').empty();
+
+        $('#venue-name').text('Bottom of the Hill');
+
+        $.each(data, function(idx, element) {
+            $('#show-list').append('<li>' + element.title + ' @ ' + element.date + '</li>');
+        });
+    }).fail(function() {
+        console.log('fail');
+    });
+});
