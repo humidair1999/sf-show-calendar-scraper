@@ -58,6 +58,7 @@ get '/fillmore' do
 
         date_block = div.at_css('.content').child.text.strip
         month_marker = month
+        # TODO: make this work for 2015!
         year_marker = "2014"
 
         date = date_block[/#{month_marker}(.*?)#{year_marker}/m, 1].strip[0..-2].to_i
@@ -71,6 +72,50 @@ get '/fillmore' do
 
         p '---------------------------------------------------------'
         p show_info
+    end
+
+    content_type :json
+    shows.to_json
+end
+
+get '/independent' do
+    month = params[:month].capitalize
+    shows = []
+
+    p month
+
+    doc = Nokogiri::HTML(open("http://www.theindependentsf.com/calendar/")) do |config|
+        config.strict.noent
+        config.strict.noerror
+        config.strict.nonet
+    end
+
+    doc.at_css("div.tfly-calendar").css("table").each do |table|
+        if table.css('.month').text.strip == month
+            table.css('td.vevent').each do |cell|
+                if cell.at_css('.headliners')
+                    title = cell.at_css('.headliners').child.text.strip
+
+                    if cell.at_css('.supports')
+                        title = title + ' & ' + cell.at_css('.supports').child.text.strip
+                    end
+
+                    date = cell.at_css('.date').text.strip.split('/')[1].to_i
+
+                    show_info = {
+                        :title => title,
+                        :date => date
+                    }
+
+                    shows << show_info
+
+                    p '---------------------------------------------------------'
+                    p show_info
+                end
+            end
+        else
+            p 'incorrect calendar month'
+        end
     end
 
     content_type :json
