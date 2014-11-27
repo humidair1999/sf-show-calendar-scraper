@@ -121,3 +121,40 @@ get '/independent' do
     content_type :json
     shows.to_json
 end
+
+get '/warfield' do
+    month = params[:month].capitalize[0,3]
+    shows = []
+
+    p month
+
+    doc = Nokogiri::HTML(open("http://www.thewarfieldtheatre.com/events")) do |config|
+        config.strict.noent
+        config.strict.noerror
+        config.strict.nonet
+    end
+
+    doc.at_css('#eventsList').css('div.entry').each do |div|
+        event_date = div.at_css('.date').text.strip
+        event_month = event_date.split[1]
+
+        if event_month == month
+            date = event_date.split[2][0..-2].to_i
+
+            title = div.at_css('.title').text.strip.split.join(' ')
+
+            show_info = {
+                :title => title,
+                :date => date
+            }
+
+            shows << show_info
+
+            p '---------------------------------------------------------'
+            p show_info
+        end
+    end
+
+    content_type :json
+    shows.to_json
+end
